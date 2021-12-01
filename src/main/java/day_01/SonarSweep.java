@@ -2,14 +2,34 @@ package day_01;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SonarSweep {
+
+    final List<Integer> depths;
+    Integer prevDepth;
+
+    public SonarSweep(List<Integer> depths) {
+        this.depths = depths;
+    }
+
+    public SweepData sweep() {
+        SweepData data = new SweepData();
+        depths.forEach(depth -> {
+            if (prevDepth != null) {
+                if (prevDepth < depth) data.increased();
+                else data.decreased();
+            }
+            prevDepth = depth;
+        });
+
+        return data;
+    }
 
     static class SweepData {
         Integer increases = 0;
@@ -36,37 +56,28 @@ public class SonarSweep {
         }
     }
 
-    static class FirstPuzzle {
-        final Path puzzleInput;
-        Integer prevDepth;
-
-        public FirstPuzzle(Path puzzleInput) {
-            this.puzzleInput = puzzleInput;
+    public static List<Integer> mapThreeMeasurementSlidingWindow(List<Integer> depths) {
+        List<Integer> threeMeasurements = new ArrayList<>();
+        for (int i = 0; i < depths.size() - 2; i++) {
+            threeMeasurements.add(depths.get(i) + depths.get(i + 1) + depths.get(i + 2));
         }
-
-        public SweepData sweep() {
-            SweepData data = new SweepData();
-            try (Stream<String> stream = Files.lines(puzzleInput)) {
-                stream.forEach(input -> {
-                    int depth = Integer.parseInt(input);
-                    if (prevDepth != null) {
-                        if (prevDepth < depth) data.increased();
-                        else data.decreased();
-                    }
-                    prevDepth = depth;
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return data;
-        }
+        return threeMeasurements;
     }
 
     public static void main(String[] args) {
-        String fileName = "src/main/resources/input.txt";
+        List<Integer> depths = parsePuzzleInput();
 
-        Path puzzleInput = Paths.get(fileName);
+        new SonarSweep(depths).sweep().print();
+        new SonarSweep(mapThreeMeasurementSlidingWindow(depths)).sweep().print();
 
-        new FirstPuzzle(puzzleInput).sweep().print();
+    }
+
+    public static List<Integer> parsePuzzleInput() {
+        try (Stream<String> stream = Files.lines(Paths.get("src/main/resources/input.txt"))) {
+            return stream.map(Integer::parseInt).collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
     }
 }
