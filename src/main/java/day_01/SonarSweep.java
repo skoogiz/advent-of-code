@@ -45,10 +45,7 @@ public class SonarSweep {
 
         @Override
         public String toString() {
-            return "SonarSweep: {" +
-                    "increases: " + increases +
-                    ", decreases: " + decreases +
-                    '}';
+            return String.format("SonarSweep: {increases: %d, decreases: %d}", increases, decreases);
         }
 
         public void print() {
@@ -56,7 +53,7 @@ public class SonarSweep {
         }
     }
 
-    public static List<Integer> mapThreeMeasurementSlidingWindow(List<Integer> depths) {
+    public static List<Integer> mapThreeMeasurementSlidingWindow(final List<Integer> depths) {
         List<Integer> threeMeasurements = new ArrayList<>();
         for (int i = 0; i < depths.size() - 2; i++) {
             threeMeasurements.add(depths.get(i) + depths.get(i + 1) + depths.get(i + 2));
@@ -66,7 +63,6 @@ public class SonarSweep {
 
     public static void main(String[] args) {
         List<Integer> depths = parsePuzzleInput();
-
         new SonarSweep(depths).sweep().print();
         new SonarSweep(mapThreeMeasurementSlidingWindow(depths)).sweep().print();
 
